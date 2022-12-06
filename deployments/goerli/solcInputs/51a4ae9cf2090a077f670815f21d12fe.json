@@ -1,0 +1,35 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/Token.sol": {
+      "content": "// SPDX-License-Identifier: MIT\r\npragma solidity ^0.8.17;\r\n\r\ncontract Token {\r\n    // My Variables - State variables\r\n    string public s_name;\r\n    string public s_symbol;\r\n    uint256 public s_decimals;\r\n    uint256 public s_totalSupply;\r\n\r\n    // Keep track balances and allowances approved\r\n    mapping(address => uint256) public balanceOf;\r\n    mapping(address => mapping(address => uint256)) public allowance;\r\n\r\n    // Events - fire events on state changes etc\r\n    event Transfer(\r\n        address indexed from,\r\n        address indexed to,\r\n        uint256 indexed value\r\n    );\r\n    event Approval(\r\n        address indexed owner,\r\n        address indexed spender,\r\n        uint256 indexed value\r\n    );\r\n\r\n    constructor(\r\n        string memory _name,\r\n        string memory _symbol,\r\n        uint _decimals,\r\n        uint _totalSupply\r\n    ) {\r\n        s_name = _name;\r\n        s_symbol = _symbol;\r\n        s_decimals = _decimals;\r\n        s_totalSupply = _totalSupply;\r\n        // The person who deploys the contract owns all the tokens initially\r\n        // This can be used then as liquidity pool and people can buy that toekn\r\n        balanceOf[msg.sender] = s_totalSupply;\r\n    }\r\n\r\n    /// @notice transfer amount of tokens to an address\r\n    /// @param _to receiver of token\r\n    /// @param _value amount value of token to send\r\n    /// @return success as true, for transfer\r\n    function transfer(\r\n        address _to,\r\n        uint256 _value\r\n    ) external returns (bool success) {\r\n        require(balanceOf[msg.sender] >= _value);\r\n        _transfer(msg.sender, _to, _value);\r\n        return true;\r\n    }\r\n\r\n    /// @dev internal helper transfer function with required safety checks\r\n    /// @param _from, where funds coming the sender\r\n    /// @param _to receiver of token\r\n    /// @param _value amount value of token to send\r\n    // Internal function transfer can only be called by this contract\r\n    //  Emit Transfer Event event\r\n    function _transfer(address _from, address _to, uint256 _value) internal {\r\n        // Ensure sending is to valid address! 0x0 address cane be used to burn()\r\n        require(_to != address(0));\r\n        balanceOf[_from] = balanceOf[_from] - (_value);\r\n        balanceOf[_to] = balanceOf[_to] + (_value);\r\n        emit Transfer(_from, _to, _value);\r\n    }\r\n\r\n    /// @notice Approve other to spend on your behalf eg an exchange\r\n    /// @param _spender allowed to spend and a max amount allowed to spend\r\n    /// @param _value amount value of token to send\r\n    /// @return true, success once address approved\r\n    //  Emit the Approval event\r\n    // Allow _spender to spend up to _value on your behalf - Like Uniswap\r\n    function approve(address _spender, uint256 _value) external returns (bool) {\r\n        require(_spender != address(0));\r\n        allowance[msg.sender][_spender] = _value;\r\n        emit Approval(msg.sender, _spender, _value);\r\n        return true;\r\n    }\r\n\r\n    /// @notice transfer by approved person from original address of an amount within approved limit\r\n    /// @param _from, address sending to and the amount to send\r\n    /// @param _to receiver of token\r\n    /// @param _value amount value of token to send\r\n    /// @dev internal helper transfer function with required safety checks\r\n    /// @return true, success once transfered from original account\r\n    // Allow _spender to spend up to _value on your behalf\r\n    function transferFrom(\r\n        address _from,\r\n        address _to,\r\n        uint256 _value\r\n    ) external returns (bool) {\r\n        require(_value <= balanceOf[_from]);\r\n        require(_value <= allowance[_from][msg.sender]);\r\n        allowance[_from][msg.sender] = allowance[_from][msg.sender] - (_value);\r\n        _transfer(_from, _to, _value);\r\n        return true;\r\n    }\r\n}\r\n"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": false,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}
